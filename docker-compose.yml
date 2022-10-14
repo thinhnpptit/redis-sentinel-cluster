@@ -1,61 +1,55 @@
 version: '2'
 
 networks:
-  app-tier:
+  vpcbr:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
 
 services:
-  redis_ub_master:
-    container_name: redis_master1
+  redis_master:
+    container_name: redis_master_1
     build:
       context: ./
       dockerfile: Dockerfile
     networks:
-      - app-tier
+      vpcbr:
+        ipv4_address: 10.5.1.1
     ports:
       - '6379:6379'
       - '26375:26379'
       - '5000:5000'
     privileged: true
     restart: unless-stopped
-    command: ["tail", "-F", "anything"]
+    command: ['tail', '-F', 'anything']
 
-  redis_ub_slave:
-    container_name: redis_slave
+  redis_slave:
+    container_name: redis_slave_1
     build:
       context: ./
       dockerfile: Dockerfile
     networks:
-      - app-tier
+      vpcbr:
+        ipv4_address: 10.5.2.1
     ports:
       - '6378:6379'
       - '26376:26379'
     privileged: true
     restart: unless-stopped
-    command: ["tail", "-F", "anything"]
-  redis_ub_sentinel:
-    container_name: redis_sentinel
+    command: ['tail', '-F', 'anything']
+  redis_sentinel:
+    container_name: redis_sentinel_1
     build:
       context: ./
       dockerfile: Dockerfile
     networks:
-      - app-tier
+      vpcbr:
+        ipv4_address: 10.5.3.1
     ports:
       - '6377:6379'
       - '26377:26379'
     privileged: true
     restart: unless-stopped
-    command: ["tail", "-F", "anything"]
-  core_go:
-    container_name: core_go
-    build:
-      context: ./
-      dockerfile: DockerfileGo
-    networks:
-      - app-tier
-    ports:
-      - '4000:4000'
-    privileged: true
-    restart: unless-stopped
-    command: ["tail", "-F", "anything"]
-
+    command: ['tail', '-F', 'anything']
